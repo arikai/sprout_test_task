@@ -1,0 +1,15 @@
+#+TITLE: Sprout Therapy Test task
+#+AUTHOR: Yaroslav Rogov
+
+Test task for Sprout Therapy
+Description can be found in [[./Sprout Therapy Assignment.pdf][Sprout Therapy Assignment.pdf]]
+
+* What's important
+- Divide application on layers/components (for easier testing)
+- Correctness
+- Test coverage
+* TODO Roadmap
+- edge cases for floats and integers?
+- custom cases
+- add decimal?
+- Rest API
