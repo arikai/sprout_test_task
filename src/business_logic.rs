@@ -1,3 +1,6 @@
+use serde_derive::Serialize;
+use std::fmt;
+
 const M: i64 = 42;
 const P: i64 = 128;
 const T: i64 = 1024;
@@ -12,7 +15,7 @@ pub struct CustomRule {
   calc_fun: Option<CalcFun>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct LogicResult {
   h: i64,
   k: f64
@@ -23,6 +26,16 @@ pub enum ExecutionError {
   NoRuleError
 }
 
+impl std::error::Error for ExecutionError {}
+
+impl fmt::Display for ExecutionError {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let printable = match *self {
+      ExecutionError::NoRuleError => "No rule found"
+    };
+    write!(f, "{}", printable)
+  }
+}
 
 const CUSTOM_RULE_1: CustomRule =
   CustomRule{
