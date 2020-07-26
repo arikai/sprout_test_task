@@ -8,4 +8,3 @@ edition = "2018"
 
 [dependencies]
 counted-array = "^0.1.2"
-mockall = "^0.7.1"

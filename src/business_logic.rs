@@ -18,6 +18,12 @@ pub struct LogicResult {
   k: f64
 }
 
+#[derive(Debug, PartialEq)]
+pub enum ExecutionError {
+  NoRuleError
+}
+
+
 const CUSTOM_RULE_1: CustomRule =
   CustomRule{
     bool_fun: None,
@@ -74,34 +80,34 @@ const DEFAULT_RULE: CustomRule =
 
 fn apply_bool_rules(
   a: bool, b: bool, c: bool,
-  rules: &[CustomRule]) -> Option<i64>
+  rules: &[CustomRule]) -> Result<i64, ExecutionError>
 {
   for rule in rules.iter().chain([DEFAULT_RULE].iter()) {
     match rule.bool_fun.and_then(|fun| { fun(a, b, c) }) {
       None => continue,
-      Some(h) => return Some(h)
+      Some(h) => return Ok(h)
     }
   }
-  None
+  Err(ExecutionError::NoRuleError)
 }
 
 fn apply_calc_rules(
   h: i64, d: f64, e: i64, f: i64,
-  rules: &[CustomRule]) -> Option<f64>
+  rules: &[CustomRule]) -> Result<f64, ExecutionError>
 {
   for rule in rules.iter().chain([DEFAULT_RULE].iter()) {
     match rule.calc_fun.and_then(|fun| { fun(h, d, e, f) }) {
       None => continue,
-      Some(k) => return Some(k)
+      Some(k) => return Ok(k)
     }
   }
-  None
+  Err(ExecutionError::NoRuleError)
 }
 
 pub fn execute(
   a: bool, b: bool, c: bool,
   d: f64, e: i64, f: i64
-) -> LogicResult {
+) -> Result<LogicResult, ExecutionError> {
   execute_with_rules(a, b, c, d, e, f, &CUSTOM_RULES)
 }
 
@@ -109,22 +115,10 @@ fn execute_with_rules(
   a: bool, b: bool, c: bool,
   d: f64, e: i64, f: i64,
   rules: &[CustomRule]
-) -> LogicResult {
-  let h: i64;
-  let k: f64;
-
-  h =
-    apply_bool_rules(a, b, c, rules)
-    .unwrap_or_else(|| {
-      panic!("Bad inputs")                   // TODO: return error
-    });
-  k =
-    apply_calc_rules(h, d, e, f, rules)
-    .unwrap_or_else(|| {
-      panic!("Bad h value") // TODO: return error
-    });
-
-  LogicResult{ h, k }
+) -> Result<LogicResult, ExecutionError> {
+  let h = apply_bool_rules(a, b, c, rules)?;
+  let k = apply_calc_rules(h, d, e, f, rules)?;
+  Ok(LogicResult{ h, k })
 }
 
 #[cfg(test)]
@@ -137,36 +131,37 @@ mod tests {
 
   #[test]
   fn default_rules() {
-    assert_eq!(LogicResult{ h: 42, k: 1.2},
+    assert_eq!(Ok(LogicResult{ h: 42, k: 1.2}),
                execute_with_rules(true, true, false, D, E, F, &[]));
-    assert_eq!(LogicResult{ h: 128, k: 0.9607843137254902 },
+    assert_eq!(Ok(LogicResult{ h: 128, k: 0.9607843137254902 }),
                execute_with_rules(true, true, true, D, E, F, &[]));
-    assert_eq!(LogicResult{ h: 1024, k: 0.9 },
+    assert_eq!(Ok(LogicResult{ h: 1024, k: 0.9 }),
                execute_with_rules(false, true, true, D, E, F, &[]));
-
+    assert_eq!(Err(ExecutionError::NoRuleError),
+               execute_with_rules(false, false, false, D, E, F, &[]));
   }
 
   #[test]
   fn custom_rule_1() {
-    assert_eq!(LogicResult{ h: 128, k: 2.02 },
+    assert_eq!(Ok(LogicResult{ h: 128, k: 2.02 }),
                execute_with_rules(true, true, true, D, E, F, &[CUSTOM_RULE_1]));
   }
 
   #[test]
   fn custom_rule_2() {
-    assert_eq!(LogicResult{ h: 1024, k: 0.9 },
+    assert_eq!(Ok(LogicResult{ h: 1024, k: 0.9 }),
                execute_with_rules(true, true, false, D, E, F, &[CUSTOM_RULE_2]));
-    assert_eq!(LogicResult{ h: 42, k: 4.02 },
+    assert_eq!(Ok(LogicResult{ h: 42, k: 4.02 }),
                execute_with_rules(true, false, true, D, E, F, &[CUSTOM_RULE_2]));
   }
 
   #[test]
   fn with_all_custom_rules() {
-    assert_eq!(LogicResult{ h: 128, k: 2.02 },
+    assert_eq!(Ok(LogicResult{ h: 128, k: 2.02 }),
                execute(true, true, true, D, E, F));
-    assert_eq!(LogicResult{ h: 1024, k: 0.9 },
+    assert_eq!(Ok(LogicResult{ h: 1024, k: 0.9 }),
                execute(true, true, false, D, E, F));
-    assert_eq!(LogicResult{ h: 42, k: 4.02 },
+    assert_eq!(Ok(LogicResult{ h: 42, k: 4.02 }),
                execute(true, false, true, D, E, F));
   }
 }
