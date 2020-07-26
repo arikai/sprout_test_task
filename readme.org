@@ -9,7 +9,6 @@ Description can be found in [[./Sprout Therapy Assignment.pdf][Sprout Therapy As
 - Correctness
 - Test coverage
 * TODO Roadmap
-- edge cases for floats and integers?
-- custom cases
 - add decimal?
+- edge cases for floats and integers?
 - Rest API
