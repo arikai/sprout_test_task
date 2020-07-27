@@ -4,6 +4,17 @@
 Test task for Sprout Therapy
 Description can be found in [[./Sprout Therapy Assignment.pdf][Sprout Therapy Assignment.pdf]]
 
+* About
+For this task I used Rust programming language (as a main language used at the Company), and libraries:
+- ~actix_web~ for HTTP API
+- ~serde~ and ~serde_json~ for de-/serialization
+- ~log~ and ~env_logger~ for logging purposes
+
+Built-in Unit tests and Integration tests were used for testing.
+
+For the business logic itself an extensible and configurable solution was developed, that allows to override custom business rules used in the computation of result values. Details can be found in [[./src/business_logic.rs][src/business_logic.rs]].
+For the HTTP API simple JSON protocol was used.
+
 * What's important
 - Divide application on layers/components (for easier testing)
 - Correctness
